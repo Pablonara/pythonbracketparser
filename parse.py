@@ -1,6 +1,8 @@
 import argparse
 import code
 import readline
+import io
+import sys
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-c", "--interactive", help="Interactive Mode (like how running python3 gives you a shell)")
@@ -56,12 +58,29 @@ print("Arch user btw uwu"); for i in range(5) {print(i)}
 """
 if args.interactive == 'y':
     console = code.InteractiveConsole()
+    buffer = []
     while True:
         a = input("> ")
-        processed = process(a)
+        processed = a
+        print("processed: ")
         print(processed)
-        for line in processed.split('\n'):
-            console.push(line)
+        output = io.StringIO()
+        lines = processed.split('\n')
+        for line in lines:
+            buffer.append(line)
+            code = '\n'.join(buffer)
+            sys.stdout = output
+            sys.stderr = output
+            more = console.push(code)
+            sys.stdout = sys.__stdout__
+            sys.stderr = sys.__stderr__
+            if not more: 
+                buffer = []
+                print(output.getvalue)
+            else:
+                pass
+        if not more:
+            print(output.getvalue())
 
 converted = process(testCase)
 print(converted)
